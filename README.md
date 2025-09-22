@@ -106,54 +106,54 @@ const VKontakteStrategy = require("passport-vkontakte").Strategy;
 app.use(require("cookie-parser")());
 app.use(require("body-parser").urlencoded({ extended: true }));
 app.use(
-    require("express-session")({
-        secret: "keyboard cat",
-        resave: true,
-        saveUninitialized: true,
-    })
+  require("express-session")({
+    secret: "keyboard cat",
+    resave: true,
+    saveUninitialized: true,
+  })
 );
 app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(
-    new VKontakteStrategy(
-        {
-            clientID: VKONTAKTE_APP_ID, // VK.com docs call it 'API ID', 'app_id', 'api_id', 'client_id' or 'apiId'
-            clientSecret: VKONTAKTE_APP_SECRET,
-            callbackURL: "http://localhost:3000/auth/vkontakte/callback",
-        },
-        function myVerifyCallbackFn(
-            accessToken,
-            refreshToken,
-            params,
-            profile,
-            done
-        ) {
-            // Now that we have user's `profile` as seen by VK, we can
-            // use it to find corresponding database records on our side.
-            // Also we have user's `params` that contains email address (if set in
-            // scope), token lifetime, etc.
-            // Here, we have a hypothetical `User` class which does what it says.
-            User.findOrCreate({ vkontakteId: profile.id })
-                .then(function (user) {
-                    done(null, user);
-                })
-                .catch(done);
-        }
-    )
+  new VKontakteStrategy(
+    {
+      clientID: VKONTAKTE_APP_ID, // VK.ru docs call it 'API ID', 'app_id', 'api_id', 'client_id' or 'apiId'
+      clientSecret: VKONTAKTE_APP_SECRET,
+      callbackURL: "http://localhost:3000/auth/vkontakte/callback",
+    },
+    function myVerifyCallbackFn(
+      accessToken,
+      refreshToken,
+      params,
+      profile,
+      done
+    ) {
+      // Now that we have user's `profile` as seen by VK, we can
+      // use it to find corresponding database records on our side.
+      // Also we have user's `params` that contains email address (if set in
+      // scope), token lifetime, etc.
+      // Here, we have a hypothetical `User` class which does what it says.
+      User.findOrCreate({ vkontakteId: profile.id })
+        .then(function (user) {
+          done(null, user);
+        })
+        .catch(done);
+    }
+  )
 );
 
 // User session support for our hypothetical `user` objects.
 passport.serializeUser(function (user, done) {
-    done(null, user.id);
+  done(null, user.id);
 });
 
 passport.deserializeUser(function (id, done) {
-    User.findById(id)
-        .then(function (user) {
-            done(null, user);
-        })
-        .catch(done);
+  User.findById(id)
+    .then(function (user) {
+      done(null, user);
+    })
+    .catch(done);
 });
 ```
 
@@ -170,16 +170,16 @@ application:
 app.get("/auth/vkontakte", passport.authenticate("vkontakte"));
 
 app.get(
-    "/auth/vkontakte/callback",
-    passport.authenticate("vkontakte", {
-        successRedirect: "/",
-        failureRedirect: "/login",
-    })
+  "/auth/vkontakte/callback",
+  passport.authenticate("vkontakte", {
+    successRedirect: "/",
+    failureRedirect: "/login",
+  })
 );
 
 app.get("/", function (req, res) {
-    //Here you have an access to req.user
-    res.json(req.user);
+  //Here you have an access to req.user
+  res.json(req.user);
 });
 ```
 
@@ -187,16 +187,16 @@ app.get("/", function (req, res) {
 
 Set `display` in `passport.authenticate()` options to specify display
 mode. Refer to the [OAuth dialog
-documentation](http://vk.com/dev/auth_mobile)
+documentation](http://vk.ru/dev/auth_mobile)
 for information on its usage.
 
 ```javascript
 app.get(
-    "/auth/vkontakte",
-    passport.authenticate("vkontakte", { display: "mobile" }),
-    function (req, res) {
-        // ...
-    }
+  "/auth/vkontakte",
+  passport.authenticate("vkontakte", { display: "mobile" }),
+  function (req, res) {
+    // ...
+  }
 );
 ```
 
@@ -209,20 +209,20 @@ For example, this authorization requests permission to the user's friends:
 
 ```javascript
 app.get(
-    "/auth/vkontakte",
-    passport.authenticate("vkontakte", {
-        scope: ["status", "email", "friends", "notify"],
-    }),
-    function (req, res) {
-        // The request will be redirected to vk.com for authentication, with
-        // extended permissions.
-    }
+  "/auth/vkontakte",
+  passport.authenticate("vkontakte", {
+    scope: ["status", "email", "friends", "notify"],
+  }),
+  function (req, res) {
+    // The request will be redirected to vk.ru for authentication, with
+    // extended permissions.
+  }
 );
 ```
 
 #### Profile Fields
 
-The VK.com profile may contain a lot of information. The
+The VK.ru profile may contain a lot of information. The
 strategy can be configured with a `profileFields` parameter which specifies a
 list of additional fields your application needs. For example, to fetch users's `city` and `bdate` configure strategy like this.
 
@@ -231,14 +231,14 @@ scope, which you should explicitly list as in following example:
 
 ```javascript
 passport.use(
-    new VKontakteStrategy(
-        {
-            ...{ clientID, clientSecret, callbackURL },
-            scope: ["email" /* ... and others, if needed */],
-            profileFields: ["email", "city", "bdate"],
-        },
-        myVerifyCallbackFn
-    )
+  new VKontakteStrategy(
+    {
+      ...{ clientID, clientSecret, callbackURL },
+      scope: ["email" /* ... and others, if needed */],
+      profileFields: ["email", "city", "bdate"],
+    },
+    myVerifyCallbackFn
+  )
 );
 ```
 
@@ -251,29 +251,29 @@ For example, this would configure the strategy to return name in Russian:
 
 ```javascript
 passport.use(
-    new VkontakteStrategy(
-        {
-            ...{ clientID, clientSecret, callbackURL },
-            lang: "ru",
-        },
-        myVerifyCallbackFn
-    )
+  new VkontakteStrategy(
+    {
+      ...{ clientID, clientSecret, callbackURL },
+      lang: "ru",
+    },
+    myVerifyCallbackFn
+  )
 );
 ```
 
 #### API version
 
-The VK.com profile structure can differ from one API version to another. The specific version to use can be configured with a `apiVersion` parameter. The default is `5.110`.
+The VK.ru profile structure can differ from one API version to another. The specific version to use can be configured with a `apiVersion` parameter. The default is `5.110`.
 
 ```javascript
 passport.use(
-    new VKontakteStrategy(
-        {
-            ...{ clientID, clientSecret, callbackURL },
-            apiVersion: "5.17",
-        },
-        myVerifyCallbackFn
-    )
+  new VKontakteStrategy(
+    {
+      ...{ clientID, clientSecret, callbackURL },
+      apiVersion: "5.17",
+    },
+    myVerifyCallbackFn
+  )
 );
 ```
 
@@ -284,8 +284,8 @@ passport.use(
 
 ## Credits
 
--   [Jared Hanson](http://github.com/jaredhanson)
--   [Stepan Stolyarov](http://github.com/stevebest)
+- [Jared Hanson](http://github.com/jaredhanson)
+- [Stepan Stolyarov](http://github.com/stevebest)
 
 ## Special Thanks
 
@@ -317,7 +317,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [passport-js]: http://passportjs.org/
-[vk]: https://www.vk.com/
+[vk]: https://www.vk.ru/
 [connect]: http://www.senchalabs.org/connect/
 [express]: http://expressjs.com/
 [travis-build-status]: http://travis-ci.org/stevebest/passport-vkontakte
